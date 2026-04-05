@@ -1,0 +1,111 @@
+Table users {
+  id integer [primary key]
+  username varchar
+  password_hash varchar
+  system_id integer [ref: - systems.id]
+  created_at timestamp
+}
+
+Table systems {
+  id integer [primary key]
+  name varchar
+  description text
+  created_at timestamp
+}
+
+Table system_relationships {
+  id integer [primary key]
+  system_a_id integer [ref: > systems.id]
+  system_b_id integer [ref: > systems.id]
+  status varchar [note: 'pending, rejected, accepted']
+  created_at timestamp
+}
+
+Table members {
+  id integer [primary key]
+  system_id integer [ref: > systems.id]
+  name varchar
+  pronouns varchar
+  description text
+  colour varchar
+  profile_picture_url varchar
+  is_custom_front bool
+  is_archived bool
+  folder_id integer [ref: > folders.id, null]
+  created_at timestamp
+}
+
+Table custom_fields {
+  id integer [primary key]
+  member_id integer [ref: > members.id]
+  definition_id integer [ref: > custom_field_definitions.id]
+  value text
+  created_at timestamp
+}
+
+Table custom_field_definitions {
+  id integer [primary key]
+  system_id integer [ref: > systems.id]
+  field_name varchar
+  field_order varchar
+  created_at timestamp
+}
+
+Table member_privacy_settings {
+  id integer [primary key]
+  member_id integer [ref: - members.id]
+  is_private bool
+  suppress_notifications bool
+}
+
+Table member_hidden_fields {
+  member_id integer [ref: > members.id]
+  definition_id integer [ref: > custom_field_definitions.id]
+
+  indexes {
+    (member_id, definition_id) [pk]
+  }
+}
+
+Table folders {
+  id integer [primary key]
+  system_id integer [ref: > systems.id]
+  parent_id integer [ref: > folders.id, null]
+  name varchar
+  colour varchar
+}
+
+Table front_entries {
+  id integer [primary key]
+  system_id integer [ref: > systems.id]
+  member_id integer [ref: > members.id]
+  started_at timestamp
+  ended_at timestamp [null]
+  front_note text
+  front_status varchar
+  created_by_user_id integer [ref: > users.id]
+}
+
+Table front_entry_comments {
+  id integer [primary key]
+  front_entry_id integer [ref: > front_entries.id]
+  user_id integer [ref: > users.id]
+  body text
+  created_at timestamp
+}
+
+Table journal_entries {
+  id integer [primary key]
+  system_id integer [ref: > systems.id]
+  member_id integer [ref: > members.id, null]
+  body text
+  created_at timestamp
+}
+
+Table push_subscriptions {
+  id integer [primary key]
+  user_id integer [ref: - users.id]
+  subscription_json text
+  created_at timestamp
+}
+
